@@ -1,0 +1,18 @@
+[
+  {
+    "modid" : "modlistbuilder",
+    "name" : "Mod List Builder",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "authorList": [
+      "UnwrittenFun"
+    ],
+    "description": "Simply generates a file with the list of mods for use with soartex modded packs.",
+    "url" : "https://github.com/Soartex-Modded/Mod-List-Builder",
+    "updateUrl" : "",
+    "logoFile" : "",
+    "parent" : "",
+    "screenshots": [
+    ]
+  }
+]

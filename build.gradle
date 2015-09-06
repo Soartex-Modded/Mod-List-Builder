@@ -35,7 +35,7 @@ tasks.withType(JavaCompile) {
   targetCompatibility = "1.7"
 }
 
-version = "0.0.1-${System.getenv("DRONE_BUILD_NUMBER")}"
+version = "0.0.${System.getenv("DRONE_BUILD_NUMBER")}"
 group = "net.soartex.modlistbuilder"
 archivesBaseName = "modlistbuilder"
 

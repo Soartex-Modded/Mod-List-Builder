@@ -1,70 +1,67 @@
 package net.soartex.modlistbuilder;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.config.Configuration;
+import net.soartex.modlistbuilder.common.ModInfo;
+import net.soartex.modlistbuilder.common.ModPackFile;
+import net.soartex.modlistbuilder.common.configuration.Config;
+import net.soartex.modlistbuilder.common.configuration.ConfigurationHelper;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 @Mod(modid = ModInfo.MOD_ID, name = ModInfo.NAME, version = ModInfo.VERSION)
 public class ModList {
+  public static Logger logger;
+  public static Config config;
+  public static ModPackFile modPackFile = null;
+
   @Mod.EventHandler
-  public void loaded(FMLLoadCompleteEvent event) {
-    File modListFile = new File(Minecraft.getMinecraft().mcDataDir, "modlist.txt");
-    if (modListFile.exists()) return;
+  public void preInit(FMLPreInitializationEvent event) {
+    Config.configDir = new File(event.getModConfigurationDirectory(), ModInfo.MOD_ID);
+    config = new Config();
+    logger = event.getModLog();
+    FMLCommonHandler.instance().bus().register(config);
+  }
 
-    ArrayList<String> modidBlacklist = new ArrayList<>();
-    modidBlacklist.add(ModInfo.MOD_ID);
-    modidBlacklist.add("mcp");
-    modidBlacklist.add("forge");
-    modidBlacklist.add("fml");
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(modListFile));
-      List<String> modList = new ArrayList<>();
-      for (ModContainer modContainer : Loader.instance().getActiveModList()) {
-        if (!modidBlacklist.contains(modContainer.getModId().toLowerCase())) {
-          modList.add(modContainer.getModId());
+  @Mod.EventHandler
+  public void loadComplete(FMLLoadCompleteEvent event) {
+    logger.info("Checking for existing modpack file.");
+    File[] files = Config.configDir.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (FilenameUtils.getExtension(file.toString()).equals("json")) {
+          logger.info("Found modpack file. Attempting to load modpack data.");
+          modPackFile = ModPackFile.load(file);
+          if (modPackFile != null) break;
         }
       }
-
-      writer.write("{\n" +
-          "  \"name\": \"My Amazing Modpack\",\n" +
-          "  \"version\": \"1.0\",\n" +
-          "  \"type\": \"modded_standard\",\n" +
-          "  \"provider\": \"curse\",\n" +
-          "  \"enabled\": true,\n" +
-          "  \"is_public\": true,\n" +
-          "  \"minecraft\": [\n" +
-          "    \"1.7.x\"\n" +
-          "  ],\n" +
-          "  \"resourcepacks\": [\n" +
-          "    \"fanver\"\n" +
-          "  ],\n" +
-          "  \"mods\": [\n");
-      Collections.sort(modList, String.CASE_INSENSITIVE_ORDER);
-      for (int i = 0; i < modList.size(); i++) {
-        writer.write("    \"");
-        writer.write(modList.get(i));
-        writer.write("\"");
-        if (i != modList.size() - 1) {
-          writer.write(",");
-        }
-        writer.newLine();
+    }
+    if (modPackFile == null) {
+      logger.info("Either no modpack file was found, or the modpack file was invalid. Creating a new modpack file instead.");
+      modPackFile = new ModPackFile();
+    }
+    ArrayList<String> blacklistedMods = new ArrayList<>(Arrays.asList(ConfigurationHelper.blacklistedMods));
+    for (ModContainer modContainer : Loader.instance().getActiveModList()) {
+      if (!blacklistedMods.contains(modContainer.getModId().toLowerCase())) {
+        modPackFile.mods.add(modContainer.getModId());
       }
-      writer.write("  ]\n" +
-          "}");
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
+    }
+    logger.info("Modpack Name: " + modPackFile.name);
+    logger.info("Saving modpack file...");
+    if (modPackFile.save(new File(Config.configDir, modPackFile.name.replace(" ", "_").toLowerCase() + ".json"))) {
+      logger.info("Successfully saved the modpack file.");
+    } else {
+      logger.error("Failed to save the modpack data to file.");
     }
   }
 }

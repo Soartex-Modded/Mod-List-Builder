@@ -1,4 +1,4 @@
-package net.soartex.modlistbuilder;
+package net.soartex.modlistbuilder.common;
 
 public class ModInfo {
   public static final String MOD_ID = "modlistbuilder";

@@ -3,15 +3,18 @@ package net.soartex.modlistbuilder.common;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LinkedTreeMap;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import net.soartex.modlistbuilder.ModList;
+import net.soartex.modlistbuilder.common.configuration.Config;
 import net.soartex.modlistbuilder.common.configuration.ConfigurationHelper;
 
 import javax.annotation.Nullable;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class ModPackFile {
   public String name = ConfigurationHelper.modpackName;
@@ -47,14 +50,37 @@ public class ModPackFile {
   }
 
   public void addMods() {
-    ArrayList<String> userBlacklistedMods = new ArrayList<>(Arrays.asList(ConfigurationHelper.userBlacklistedMods));
     mods.clear();
     for (ModContainer modContainer : Loader.instance().getActiveModList()) {
-      String modID = modContainer.getModId().toLowerCase();
-      if (!modID.equals(ModInfo.MOD_ID.toLowerCase()) && !userBlacklistedMods.contains(modID) && !ConfigurationHelper.globalConfig.blacklisted.contains(modID)) {
-        mods.add(modContainer.getModId());
+      String modId = getModId(modContainer);
+      if (isNotBlacklisted(modId)) {
+        mods.add(modId);
       }
     }
+    Collections.sort(mods, String.CASE_INSENSITIVE_ORDER);
+  }
+
+  public boolean isNotBlacklisted(String modId) {
+    ArrayList<String> userBlacklistedMods = new ArrayList<>(Arrays.asList(ConfigurationHelper.userBlacklistedMods));
+    return !modId.equals(ModInfo.MOD_ID.toLowerCase()) &&
+        !userBlacklistedMods.contains(modId.toLowerCase()) &&
+        !ConfigurationHelper.globalConfig.blacklisted.contains(modId.toLowerCase()) &&
+        !mods.contains(modId);
+  }
+
+  public String getModId(ModContainer modContainer) {
+    String modId = modContainer.getModId().toLowerCase();
+    LinkedTreeMap modOverride = (LinkedTreeMap) ConfigurationHelper.globalConfig.overrides.get(modId);
+    if (modOverride != null) {
+      for (Object version : modOverride.keySet()) {
+        if (version instanceof String) {
+          if (modContainer.getVersion().startsWith((String) version)) {
+            return (String) modOverride.get(version);
+          }
+        }
+      }
+    }
+    return modContainer.getModId().split("\\|")[0];
   }
 
   public String toJson() {

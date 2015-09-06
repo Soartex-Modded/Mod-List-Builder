@@ -5,7 +5,8 @@
     "version": "${version}",
     "mcversion": "${mcversion}",
     "authorList": [
-      "UnwrittenFun"
+      "UnwrittenFun",
+      "artdude543"
     ],
     "description": "Simply generates a file with the list of mods for use with soartex modded packs.",
     "url" : "https://github.com/Soartex-Modded/Mod-List-Builder",

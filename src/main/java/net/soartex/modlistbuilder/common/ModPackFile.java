@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.soartex.modlistbuilder.ModList;
 import net.soartex.modlistbuilder.common.configuration.Config;
 import net.soartex.modlistbuilder.common.configuration.ConfigurationHelper;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class ModPackFile {
-  public String name = ConfigurationHelper.modpackName;
+  public String name = Config.modpackName;
   public String version = "0.0.1";
   public String type = "modded_standard";
   public String provider = "curse";
@@ -57,11 +57,11 @@ public class ModPackFile {
         mods.add(modId);
       }
     }
-    Collections.sort(mods, String.CASE_INSENSITIVE_ORDER);
+    mods.sort(String.CASE_INSENSITIVE_ORDER);
   }
 
   public boolean isNotBlacklisted(String modId) {
-    ArrayList<String> userBlacklistedMods = new ArrayList<>(Arrays.asList(ConfigurationHelper.userBlacklistedMods));
+    ArrayList<String> userBlacklistedMods = new ArrayList<>(Arrays.asList(Config.userBlacklistedMods));
     return !modId.equals(ModInfo.MOD_ID.toLowerCase()) &&
         !userBlacklistedMods.contains(modId.toLowerCase()) &&
         !ConfigurationHelper.globalConfig.blacklisted.contains(modId.toLowerCase()) &&

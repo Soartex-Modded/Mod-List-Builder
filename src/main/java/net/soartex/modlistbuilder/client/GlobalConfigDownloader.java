@@ -3,6 +3,7 @@ package net.soartex.modlistbuilder.client;
 import net.soartex.modlistbuilder.ModList;
 import net.soartex.modlistbuilder.common.GlobalConfig;
 import net.soartex.modlistbuilder.common.ModInfo;
+import net.soartex.modlistbuilder.common.configuration.Config;
 import net.soartex.modlistbuilder.common.configuration.ConfigurationHelper;
 
 public class GlobalConfigDownloader extends Thread {

@@ -21,7 +21,7 @@ public class ClientProxy extends CommonProxy {
   @Override
   public void generateModpackFile() {
     ModList.logger.info("Checking for existing modpack file.");
-    File[] files = Config.configDir.listFiles();
+    File[] files = ConfigurationHelper.configDir.listFiles();
     if (files != null) {
       for (File file : files) {
         if (FilenameUtils.getExtension(file.toString()).equals("json")) {
@@ -39,12 +39,12 @@ public class ClientProxy extends CommonProxy {
       ModList.logger.info("Either no modpack file was found, or the modpack file was invalid. Creating a new modpack file instead.");
       modPackFile = new ModPackFile();
     } else {
-      ConfigurationHelper.modpackName = modPackFile.name;
+      Config.modpackName = modPackFile.name;
     }
     modPackFile.addMods();
-    if (!ConfigurationHelper.autoCreate) return;
+    if (!Config.autoCreate) return;
     ModList.logger.info("Saving modpack file...");
-    if (modPackFile.save(new File(Config.configDir, modPackFile.name.replace(" ", "_").toLowerCase() + ".json"))) {
+    if (modPackFile.save(new File(ConfigurationHelper.configDir, modPackFile.name.replace(" ", "_").toLowerCase() + ".json"))) {
       ModList.logger.info("Successfully saved the modpack file.");
     } else {
       ModList.logger.error("Failed to save the modpack data to file.");

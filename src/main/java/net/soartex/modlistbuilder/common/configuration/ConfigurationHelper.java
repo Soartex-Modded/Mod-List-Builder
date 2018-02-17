@@ -2,12 +2,9 @@ package net.soartex.modlistbuilder.common.configuration;
 
 import net.soartex.modlistbuilder.common.GlobalConfig;
 
-public class ConfigurationHelper {
-  // General mod configs.
-  public static boolean autoCreate;
+import java.io.File;
 
-  // General Modpack file configs.
-  public static String modpackName;
+public class ConfigurationHelper {
   public static GlobalConfig globalConfig;
-  public static String[] userBlacklistedMods;
+  public static File configDir;
 }
